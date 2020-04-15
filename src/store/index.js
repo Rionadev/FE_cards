@@ -97,9 +97,7 @@ const actions = {
   },
 };
 
-const getters = {
-  getGameById: state => id => state.heroes.find(h => h.id === id),
-};
+const getters = {};
 
 export default new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',

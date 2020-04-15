@@ -51,8 +51,6 @@ export default {
     return {
       message: '',
       showModal: false,
-      game: _.cloneDeep(this.$store.state.game),
-      player: _.cloneDeep(this.$store.state.player),
     };
   },
   components: {
@@ -60,7 +58,6 @@ export default {
   },
   created() {},
   computed: {
-    ...mapGetters(['getGameById']),
     ...mapState(['game', 'player']),
     isDuringGame() {
       return this.id;
@@ -70,7 +67,7 @@ export default {
     },
     gameId: {
       get() {
-        return this.$store.state.game.id;
+        return this.game.id;
       },
       set(value) {
         this.setGameId(value);
@@ -78,7 +75,7 @@ export default {
     },
     playerName: {
       get() {
-        return this.$store.state.player.name;
+        return this.player.name;
       },
       set(value) {
         this.setPlayerName(value);
