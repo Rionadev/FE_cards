@@ -1,11 +1,11 @@
-import * as axios from "axios";
+import * as axios from 'axios';
 
-import { API } from "./config";
+import { API } from './config';
 
 const getGame = async function(id) {
   try {
     const response = await axios.get(`${API}/games/${id}`);
-    let game = parseItem(response, 200);
+    const game = parseItem(response, 200);
     return game;
   } catch (error) {
     console.error(error);
@@ -15,7 +15,7 @@ const getGame = async function(id) {
 
 const newGame = async function(playerName) {
   try {
-    let game = {};
+    const game = {};
     if (playerName !== undefined) {
       game.name = playerName;
     }
@@ -31,7 +31,7 @@ const newGame = async function(playerName) {
 const getPlayer = async function(id) {
   try {
     const response = await axios.get(`${API}/players/${id}`);
-    let player = parseItem(response, 200);
+    const player = parseItem(response, 200);
     return player;
   } catch (error) {
     console.error(error);
@@ -41,9 +41,9 @@ const getPlayer = async function(id) {
 
 const addPlayer = async function(playerName, game) {
   try {
-    let player = {
+    const player = {
       name: playerName,
-      game: game["@id"]
+      game: game['@id'],
     };
     const response = await axios.post(`${API}/players`, player);
     const addedPlayer = parseItem(response, 201);
@@ -56,8 +56,8 @@ const addPlayer = async function(playerName, game) {
 
 const newRound = async function(game) {
   try {
-    let round = {
-      game: game["@id"]
+    const round = {
+      game: game['@id'],
     };
     const response = await axios.post(`${API}/rounds`, round);
     const newRound = parseItem(response, 201);
@@ -81,10 +81,10 @@ const deleteRound = async function(id) {
 
 const newRoundCard = async function(card, player, round) {
   try {
-    let roundCard = {
-      round: round["@id"],
-      card: card["@id"],
-      player: player["@id"]
+    const roundCard = {
+      round: round['@id'],
+      card: card['@id'],
+      player: player['@id'],
     };
     const response = await axios.post(`${API}/round_cards`, roundCard);
     const newRoundCard = parseItem(response, 201);
@@ -109,7 +109,7 @@ const updateRound = async function(round) {
 export const parseItem = (response, code) => {
   if (response.status !== code) throw Error(response.message);
   let item = response.data;
-  if (typeof item !== "object") {
+  if (typeof item !== 'object') {
     item = undefined;
   }
   return item;
@@ -123,5 +123,5 @@ export const dataService = {
   newRound,
   deleteRound,
   newRoundCard,
-  updateRound
+  updateRound,
 };

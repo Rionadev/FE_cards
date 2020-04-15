@@ -1,7 +1,7 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-import { dataService } from "../shared";
+import { dataService } from '../shared';
 import {
   GAME_GET,
   GAME_CREATE,
@@ -10,15 +10,15 @@ import {
   ROUND_START,
   ROUND_CANCEL,
   ROUND_CARD,
-  ROUND_FINISH
-} from "./mutation-types";
+  ROUND_FINISH,
+} from './mutation-types';
 
 Vue.use(Vuex);
 
 const state = () => ({
   game: {},
   player: {},
-  round: {}
+  round: {},
 });
 
 const mutations = {
@@ -45,7 +45,7 @@ const mutations = {
   },
   [ROUND_FINISH](state, round) {
     state.round.winner = round.winner;
-  }
+  },
 };
 
 const actions = {
@@ -79,20 +79,22 @@ const actions = {
     commit(ROUND_CARD, card);
   },
   async finishRound({ commit, state }, player) {
-    let round = state.round;
+    const round = state.round;
     round.winner = player;
-    round.status = "finished";
+    round.status = 'finished';
     const finishedRound = await dataService.updateRound(round);
     commit(ROUND_FINISH, finishedRound);
-  }
+  },
 };
 
-const getters = {};
+const getters = {
+  getGameById: state => id => state.heroes.find(h => h.id === id),
+};
 
 export default new Vuex.Store({
-  strict: process.env.NODE_ENV !== "production",
+  strict: process.env.NODE_ENV !== 'production',
   state,
   mutations,
   actions,
-  getters
+  getters,
 });
