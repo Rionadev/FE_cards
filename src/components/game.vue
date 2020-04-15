@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 import Modal from '@/components/modal';
 
 export default {
@@ -66,9 +66,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(),
+    ...mapGetters(['getGameById']),
+    ...mapState(['game', 'player']),
     isDuringGame() {
       return this.id;
+    },
+    modalMessage() {
+      return `Would you like to?`;
     },
   },
   methods: {

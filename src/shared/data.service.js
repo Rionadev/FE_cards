@@ -1,5 +1,9 @@
 import * as axios from 'axios';
 
+axios.defaults.headers.common = {
+  'Content-Type': 'application/json',
+};
+
 import { API } from './config';
 
 const getGame = async function(id) {
@@ -19,7 +23,9 @@ const newGame = async function(playerName) {
     if (playerName !== undefined) {
       game.name = playerName;
     }
-    const response = await axios.post(`${API}/games`);
+    const response = await axios.post(`${API}/games`, game, {
+      headers: { 'Content-Type': 'application/json' },
+    });
     const newGame = parseItem(response, 201);
     return newGame;
   } catch (error) {
