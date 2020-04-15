@@ -10,11 +10,11 @@
           <div class="content">
             <div class="field">
               <label class="label" for="id">Game ID</label>
-              <input class="input" name="id" v-model="game.id" />
+              <input class="input" name="id" v-model="gameId" />
             </div>
             <div class="field">
               <label class="label" for="name">Your name</label>
-              <input class="input" name="name" v-model="player.name" />
+              <input class="input" name="name" v-model="playerName" />
             </div>
           </div>
         </div>
@@ -42,6 +42,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
+import _ from 'lodash';
 import Modal from '@/components/modal';
 
 export default {
@@ -50,21 +51,14 @@ export default {
     return {
       message: '',
       showModal: false,
+      game: _.cloneDeep(this.$store.state.game),
+      player: _.cloneDeep(this.$store.state.player),
     };
   },
   components: {
     Modal,
   },
-  created() {
-    if (!this.isDuringGame) {
-      this.game = {
-        id: undefined,
-      };
-      this.player = {
-        name: undefined,
-      };
-    }
-  },
+  created() {},
   computed: {
     ...mapGetters(['getGameById']),
     ...mapState(['game', 'player']),
@@ -74,9 +68,30 @@ export default {
     modalMessage() {
       return `Would you like to?`;
     },
+    gameId: {
+      get() {
+        return this.$store.state.game.id;
+      },
+      set(value) {
+        this.setGameId(value);
+      },
+    },
+    playerName: {
+      get() {
+        return this.$store.state.player.name;
+      },
+      set(value) {
+        this.setPlayerName(value);
+      },
+    },
   },
   methods: {
-    ...mapActions(['createGameAction', 'addPlayerAction']),
+    ...mapActions([
+      'createGameAction',
+      'addPlayerAction',
+      'setPlayerName',
+      'setGameId',
+    ]),
     async createGame() {
       await this.createGameAction(this.player.name);
     },
