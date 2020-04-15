@@ -43,51 +43,51 @@ const mutations = {
   [ROUND_CARD](state, card) {
     state.round.cards.push(card);
   },
-  [ROUND_FINISH](state, player) {
-    state.round.winner = player;
+  [ROUND_FINISH](state, round) {
+    state.round.winner = round.winner;
   }
 };
 
 const actions = {
   // actions let us get to ({ state, getters, commit, dispatch }) {
-  async createGameAction({ commit }) {
-    const game = await dataService.newGame();
+  async createGameAction({ commit }, playerName) {
+    const game = await dataService.newGame(playerName);
     commit(GAME_CREATE, game);
   },
   async getGameAction({ commit }, gameId) {
     const game = await dataService.getGame(gameId);
     commit(GAME_GET, game);
   },
-  async getPlayerAction({ commit }, playerId) {
-    const player = await dataService.getPlayer(playerId);
+  async getPlayerAction({ commit, state }) {
+    const player = await dataService.getPlayer(state.player.id);
     commit(PLAYER_GET, player);
   },
-  async addPlayerAction({ commit }, player) {
-    const newPlayer = await dataService.addPlayer(player);
+  async addPlayerAction({ commit, state }, playerName) {
+    const newPlayer = await dataService.addPlayer(playerName, state.game);
     commit(PLAYER_ADD, newPlayer);
   },
-  async startRoundAction({ commit }) {
-    const round = await dataService.newRound();
+  async startRoundAction({ commit, state }) {
+    const round = await dataService.newRound(state.game);
     commit(ROUND_START, round);
   },
-  async cancelRoundAction({ commit }, roundId) {
-    await dataService.delRound(roundId);
+  async cancelRoundAction({ commit, state }) {
+    await dataService.delRound(state.round.id);
     commit(ROUND_CANCEL);
   },
-  async playCardAction({ commit }, card) {
-    await dataService.newRoundCard(card);
+  async playCardAction({ commit, state }, card) {
+    await dataService.newRoundCard(card, state.player, state.round);
     commit(ROUND_CARD, card);
   },
-  async finishRoundAction({ commit }, player) {
-    await dataService.setRoundWinner(player);
-    commit(ROUND_FINISH, player);
+  async finishRound({ commit, state }, player) {
+    let round = state.round;
+    round.winner = player;
+    round.status = "finished";
+    const finishedRound = await dataService.updateRound(round);
+    commit(ROUND_FINISH, finishedRound);
   }
 };
 
-const getters = {
-  // parameterized getters are not cached. so this is just a convenience to get the state.
-  getPlayerById: state => id => state.players.find(h => h.id === id)
-};
+const getters = {};
 
 export default new Vuex.Store({
   strict: process.env.NODE_ENV !== "production",

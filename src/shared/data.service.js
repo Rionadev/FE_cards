@@ -1,142 +1,109 @@
 import * as axios from "axios";
 
-import { format } from "date-fns";
-import { inputDateFormat } from "./constants";
-
 import { API } from "./config";
 
-const getHeroes = async function() {
+const getGame = async function(id) {
   try {
-    const response = await axios.get(`${API}/heroes`);
-
-    let data = parseList(response);
-
-    const heroes = data.map(h => {
-      h.originDate = format(h.originDate, inputDateFormat);
-      h.fullName = `${h.firstName} ${h.lastName}`;
-      return h;
-    });
-    return heroes;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
-
-const getHero = async function(id) {
-  try {
-    const response = await axios.get(`${API}/heroes/${id}`);
-    let hero = parseItem(response, 200);
-    hero.fullName = `${hero.firstName} ${hero.lastName}`;
-    return hero;
+    const response = await axios.get(`${API}/games/${id}`);
+    let game = parseItem(response, 200);
+    return game;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const updateHero = async function(hero) {
+const newGame = async function(playerName) {
   try {
-    const response = await axios.put(`${API}/heroes/${hero.id}`, hero);
-    const updatedHero = parseItem(response, 200);
-    return updatedHero;
+    let game = {};
+    if (playerName !== undefined) {
+      game.name = playerName;
+    }
+    const response = await axios.post(`${API}/games`);
+    const newGame = parseItem(response, 201);
+    return newGame;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const addHero = async function(hero) {
+const getPlayer = async function(id) {
   try {
-    const response = await axios.post(`${API}/heroes`, hero);
-    const addedHero = parseItem(response, 201);
-    return addedHero;
+    const response = await axios.get(`${API}/players/${id}`);
+    let player = parseItem(response, 200);
+    return player;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const deleteHero = async function(hero) {
+const addPlayer = async function(playerName, game) {
   try {
-    const response = await axios.delete(`${API}/heroes/${hero.id}`);
-    parseItem(response, 200);
-    return hero.id;
+    let player = {
+      name: playerName,
+      game: game["@id"]
+    };
+    const response = await axios.post(`${API}/players`, player);
+    const addedPlayer = parseItem(response, 201);
+    return addedPlayer;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const getVillains = async function() {
+const newRound = async function(game) {
   try {
-    const response = await axios.get(`${API}/villains`);
-    let data = parseList(response);
-    const villains = data.map(v => {
-      v.originDate = format(v.originDate, inputDateFormat);
-      v.fullName = `${v.firstName} ${v.lastName}`;
-      return v;
-    });
-    return villains;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
-
-const getVillain = async function(id) {
-  try {
-    const response = await axios.get(`${API}/villains/${id}`);
-    let villain = parseItem(response, 200);
-    villain.fullName = `${villain.firstName} ${villain.lastName}`;
-    return villain;
+    let round = {
+      game: game["@id"]
+    };
+    const response = await axios.post(`${API}/rounds`, round);
+    const newRound = parseItem(response, 201);
+    return newRound;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const updateVillain = async function(villain) {
+const deleteRound = async function(id) {
   try {
-    const response = await axios.put(`${API}/villains/${villain.id}`, villain);
-    const updatedVillain = parseItem(response, 200);
-    return updatedVillain;
+    const response = await axios.delete(`${API}/rounds/${id}`);
+    parseItem(response, 204);
+    return id;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const addVillain = async function(villain) {
+const newRoundCard = async function(card, player, round) {
   try {
-    const response = await axios.post(`${API}/villains`, villain);
-    const addedVillain = parseItem(response, 201);
-    return addedVillain;
+    let roundCard = {
+      round: round["@id"],
+      card: card["@id"],
+      player: player["@id"]
+    };
+    const response = await axios.post(`${API}/round_cards`, roundCard);
+    const newRoundCard = parseItem(response, 201);
+    return newRoundCard;
   } catch (error) {
     console.error(error);
     return null;
   }
 };
 
-const deleteVillain = async function(villain) {
+const updateRound = async function(round) {
   try {
-    const response = await axios.delete(`${API}/villains/${villain.id}`);
-    parseItem(response, 200);
-    return villain.id;
+    const response = await axios.put(`${API}/rounds/${round.id}`, round);
+    const updatedRound = parseItem(response, 200);
+    return updatedRound;
   } catch (error) {
     console.error(error);
     return null;
   }
-};
-
-const parseList = response => {
-  if (response.status !== 200) throw Error(response.message);
-  if (!response.data) return [];
-  let list = response.data;
-  if (typeof list !== "object") {
-    list = [];
-  }
-  return list;
 };
 
 export const parseItem = (response, code) => {
@@ -149,14 +116,12 @@ export const parseItem = (response, code) => {
 };
 
 export const dataService = {
-  getHeroes,
-  getHero,
-  updateHero,
-  addHero,
-  deleteHero,
-  getVillains,
-  getVillain,
-  updateVillain,
-  addVillain,
-  deleteVillain
+  getGame,
+  newGame,
+  getPlayer,
+  addPlayer,
+  newRound,
+  deleteRound,
+  newRoundCard,
+  updateRound
 };
