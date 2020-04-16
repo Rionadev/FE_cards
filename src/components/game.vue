@@ -1,37 +1,82 @@
 <template>
-  <div>
-    <div class="section content-title-group">
-      <h2 class="title">Welcome to the Game!</h2>
-      <div class="card">
-        <header class="card-header">
-          <p class="card-header-title">Game details</p>
-        </header>
-        <div class="card-content">
-          <div class="content">
-            <div class="field">
-              <label class="label" for="id">Game ID</label>
-              <input class="input" name="id" v-model="gameId" />
+  <section>
+    <div class="tile is-parent">
+      <article class="tile is-child is-danger">
+        <p class="title">Welcome to the Game!</p>
+        <div class="content">
+          <b-collapse
+            class="card"
+            animation="slide"
+            aria-id="contentIdForA11y3"
+          >
+            <div
+              slot="trigger"
+              slot-scope="props"
+              class="card-header"
+              role="button"
+              aria-controls="contentIdForA11y3"
+            >
+              <p class="card-header-title">
+                Game details
+              </p>
+              <a class="card-header-icon">
+                <b-icon :icon="props.open ? 'menu-down' : 'menu-up'"> </b-icon>
+              </a>
             </div>
-            <div class="field">
-              <label class="label" for="name">Your name</label>
-              <input class="input" name="name" v-model="playerName" />
+            <div class="card-content">
+              <nav class="level is-mobile">
+                <div class="level-item has-text-centered">
+                  <div>
+                    <p class="heading">Players</p>
+                    <p class="title">{{ game.playersCount }}</p>
+                  </div>
+                </div>
+                <div class="level-item has-text-centered">
+                  <div>
+                    <p class="heading">Rounds</p>
+                    <p class="title">{{ game.roundsCount }}</p>
+                  </div>
+                </div>
+              </nav>
+              <h4>Scores</h4>
+              <nav class="level">
+                <div
+                  v-for="score in game.scores"
+                  :key="score.player"
+                  class="level-item has-text-centered"
+                >
+                  <div>
+                    <p class="heading">{{ score.player }}</p>
+                    <p class="title">{{ score.score }}</p>
+                  </div>
+                </div>
+              </nav>
+              <div class="content">
+                <b-field label="Game ID">
+                  <b-input v-model="gameId"></b-input>
+                </b-field>
+                <b-field label="Your name">
+                  <b-input v-model="playerName"></b-input>
+                </b-field>
+              </div>
             </div>
-          </div>
+            <footer class="card-footer">
+              <b-button
+                type="is-light"
+                class="card-footer-item"
+                @click="joinGame"
+                >Join game</b-button
+              >
+              <b-button
+                type="is-light"
+                class="card-footer-item"
+                @click="createGame"
+                >Create a game</b-button
+              >
+            </footer>
+          </b-collapse>
         </div>
-        <footer class="card-footer">
-          <button class="link card-footer-item" @click="joinGame()">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Join game</span>
-          </button>
-          <button class="link card-footer-item" @click="createGame()">
-            <i class="far fa-plus-square"></i>
-            <span>Create game</span>
-          </button>
-        </footer>
-        <b-notification v-if="showAlert" type="is-danger" role="alert">
-          {{ alert }}
-        </b-notification>
-      </div>
+      </article>
     </div>
     <Modal
       :message="modalMessage"
@@ -40,13 +85,14 @@
       @handleYes="closeModal(true)"
     >
     </Modal>
-  </div>
+  </section>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 import _ from 'lodash';
 import Modal from '@/components/modal';
+import { ToastProgrammatic as Toast } from 'buefy';
 
 export default {
   name: 'Game',
@@ -75,7 +121,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['game', 'player', 'alert']),
+    ...mapState(['game', 'player']),
     isDuringGame() {
       return this.game.id;
     },
@@ -112,14 +158,20 @@ export default {
     ]),
     async createGame() {
       if (!this.player.name) {
-        alert('enter player name to create a game');
+        Toast.open({
+          message: 'enter player name to create a game',
+          type: 'is-danger',
+        });
         return false;
       }
       await this.createGameAction();
     },
     async joinGame() {
       if (!this.game.id || !this.player.name) {
-        alert('enter player name and game id to join');
+        Toast.open({
+          message: 'enter player name and game id to join',
+          type: 'is-danger',
+        });
         return false;
       }
       await this.getGameAction();

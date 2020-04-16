@@ -1,5 +1,6 @@
 import * as axios from 'axios';
 import { API } from './config';
+import { ToastProgrammatic as Toast } from 'buefy';
 
 const sendAlert = function(alert) {
   console.log(alert);
@@ -16,7 +17,10 @@ axios.interceptors.response.use(
   function(error) {
     console.log(error.response);
     if (error.response.data['hydra:description']) {
-      alert(error.response.data['hydra:description']);
+      Toast.open({
+        message: error.response.data['hydra:description'],
+        type: 'is-danger',
+      });
     }
     return Promise.reject(error);
   }
