@@ -4,11 +4,7 @@
       <article class="tile is-child is-danger">
         <p class="title">Welcome to the Game!</p>
         <div class="content">
-          <b-collapse
-            class="card"
-            animation="slide"
-            aria-id="contentIdForA11y3"
-          >
+          <b-collapse class="card" animation="slide" aria-id="gameCard">
             <div
               slot="trigger"
               slot-scope="props"
@@ -75,6 +71,65 @@
               >
             </footer>
           </b-collapse>
+          <b-collapse class="card" animation="slide" aria-id="roundCard">
+            <div
+              slot="trigger"
+              slot-scope="props"
+              class="card-header"
+              role="button"
+              aria-controls="contentIdForA11y3"
+            >
+              <p class="card-header-title">
+                Round
+              </p>
+              <a class="card-header-icon">
+                <b-icon :icon="props.open ? 'menu-down' : 'menu-up'"> </b-icon>
+              </a>
+            </div>
+            <div class="card-content">
+              <img :src="getRoundQuestionCard()" />
+              <nav class="level is-mobile">
+                <div class="level-item has-text-centered">
+                  <div>
+                    <p class="heading">Answers needed</p>
+                    <p class="title">{{ round.questionCard.answerCount }}</p>
+                  </div>
+                </div>
+                <div class="level-item has-text-centered">
+                  <div>
+                    <p class="heading">Cards Played</p>
+                    <p class="title">{{ round.cardsPlayedCount }}</p>
+                  </div>
+                </div>
+                <div class="level-item has-text-centered">
+                  <div>
+                    <p class="heading">Winner</p>
+                    <p class="title">{{ round.winner }}</p>
+                  </div>
+                </div>
+              </nav>
+            </div>
+            <footer class="card-footer">
+              <b-button
+                type="is-light"
+                class="card-footer-item"
+                @click="startRound"
+                >Start round</b-button
+              >
+              <b-button
+                type="is-light"
+                class="card-footer-item"
+                @click="cancelRound"
+                >Cancel round</b-button
+              >
+              <b-button
+                type="is-light"
+                class="card-footer-item"
+                @click="finishRound"
+                >Finish round</b-button
+              >
+            </footer>
+          </b-collapse>
         </div>
       </article>
     </div>
@@ -93,6 +148,7 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 import _ from 'lodash';
 import Modal from '@/components/modal';
 import { ToastProgrammatic as Toast } from 'buefy';
+import { API } from '../shared/config';
 
 export default {
   name: 'Game',
@@ -121,7 +177,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['game', 'player']),
+    ...mapState(['game', 'player', 'round']),
     isDuringGame() {
       return this.game.id;
     },
@@ -150,6 +206,9 @@ export default {
       'createGameAction',
       'addPlayerAction',
       'getGameAction',
+      'startRoundAction',
+      'cancelRoundAction',
+      'finishRoundAction',
       'setPlayerName',
       'setGameId',
       'setGame',
@@ -178,8 +237,14 @@ export default {
       await this.addPlayerAction();
       await this.getGameAction();
     },
-    showAlert() {
-      this.alert != '';
+    async startRound() {
+      await this.startRoundAction();
+    },
+    async cancelRound() {
+      await this.cancelRoundAction();
+    },
+    async finishRound() {
+      await this.finishRoundAction(player);
     },
     openModal() {
       this.showModal = true;
@@ -187,6 +252,9 @@ export default {
     closeModal(choice) {
       console.log(choice);
       this.showModal = false;
+    },
+    getRoundQuestionCard() {
+      return API + this.round.questionCard.image;
     },
   },
 };

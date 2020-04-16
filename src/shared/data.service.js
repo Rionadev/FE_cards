@@ -27,7 +27,7 @@ axios.interceptors.response.use(
 );
 
 const getGame = async function(id) {
-  const response = await axios.get(`${API}/games/${id}`);
+  const response = await axios.get(`${API}/api/games/${id}`);
   const game = parseItem(response, 200);
   return game;
 };
@@ -37,13 +37,13 @@ const newGame = async function(playerName) {
   if (playerName !== undefined) {
     game.name = playerName;
   }
-  const response = await axios.post(`${API}/games`, game);
+  const response = await axios.post(`${API}/api/games`, game);
   const newGame = parseItem(response, 201);
   return newGame;
 };
 
 const getPlayer = async function(id) {
-  const response = await axios.get(`${API}/players/${id}`);
+  const response = await axios.get(`${API}/api/players/${id}`);
   const player = parseItem(response, 200);
   return player;
 };
@@ -53,7 +53,7 @@ const addPlayer = async function(playerName, gameId) {
     name: playerName,
     game: gameId,
   };
-  const response = await axios.post(`${API}/players`, player);
+  const response = await axios.post(`${API}/api/players`, player);
   const addedPlayer = parseItem(response, 201);
   return addedPlayer;
 };
@@ -62,13 +62,13 @@ const newRound = async function(game) {
   let round = {
     game: game['@id'],
   };
-  const response = await axios.post(`${API}/rounds`, round);
+  const response = await axios.post(`${API}/api/rounds`, round);
   const newRound = parseItem(response, 201);
   return newRound;
 };
 
 const deleteRound = async function(id) {
-  const response = await axios.delete(`${API}/rounds/${id}`);
+  const response = await axios.delete(`${API}/api/rounds/${id}`);
   parseItem(response, 204);
   return id;
 };
@@ -79,13 +79,13 @@ const newRoundCard = async function(card, player, round) {
     card: card['@id'],
     player: player['@id'],
   };
-  const response = await axios.post(`${API}/round_cards`, roundCard);
+  const response = await axios.post(`${API}/api/round_cards`, roundCard);
   const newRoundCard = parseItem(response, 201);
   return newRoundCard;
 };
 
 const updateRound = async function(round) {
-  const response = await axios.put(`${API}/rounds/${round.id}`, round);
+  const response = await axios.put(`${API}/api/rounds/${round.id}`, round);
   const updatedRound = parseItem(response, 200);
   return updatedRound;
 };
