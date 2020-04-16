@@ -1,115 +1,89 @@
 import * as axios from 'axios';
+import { API } from './config';
+
+const sendAlert = function(alert) {
+  console.log(alert);
+};
 
 axios.defaults.headers.common = {
   'Content-Type': 'application/json',
 };
 
-import { API } from './config';
+axios.interceptors.response.use(
+  function(response) {
+    return response;
+  },
+  function(error) {
+    console.log(error.response);
+    if (error.response.data['hydra:description']) {
+      alert(error.response.data['hydra:description']);
+    }
+    return Promise.reject(error);
+  }
+);
 
 const getGame = async function(id) {
-  try {
-    const response = await axios.get(`${API}/games/${id}`);
-    const game = parseItem(response, 200);
-    return game;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const response = await axios.get(`${API}/games/${id}`);
+  const game = parseItem(response, 200);
+  return game;
 };
 
 const newGame = async function(playerName) {
-  try {
-    const game = {};
-    if (playerName !== undefined) {
-      game.name = playerName;
-    }
-    const response = await axios.post(`${API}/games`, game, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-    const newGame = parseItem(response, 201);
-    return newGame;
-  } catch (error) {
-    console.error(error);
-    return null;
+  const game = {};
+  if (playerName !== undefined) {
+    game.name = playerName;
   }
+  const response = await axios.post(`${API}/games`, game);
+  const newGame = parseItem(response, 201);
+  return newGame;
 };
 
 const getPlayer = async function(id) {
-  try {
-    const response = await axios.get(`${API}/players/${id}`);
-    const player = parseItem(response, 200);
-    return player;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const response = await axios.get(`${API}/players/${id}`);
+  const player = parseItem(response, 200);
+  return player;
 };
 
-const addPlayer = async function(playerName, game) {
-  try {
-    const player = {
-      name: playerName,
-      game: game['@id'],
-    };
-    const response = await axios.post(`${API}/players`, player);
-    const addedPlayer = parseItem(response, 201);
-    return addedPlayer;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+const addPlayer = async function(playerName, gameId) {
+  let player = {
+    name: playerName,
+    game: gameId,
+  };
+  const response = await axios.post(`${API}/players`, player);
+  const addedPlayer = parseItem(response, 201);
+  return addedPlayer;
 };
 
 const newRound = async function(game) {
-  try {
-    const round = {
-      game: game['@id'],
-    };
-    const response = await axios.post(`${API}/rounds`, round);
-    const newRound = parseItem(response, 201);
-    return newRound;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  let round = {
+    game: game['@id'],
+  };
+  const response = await axios.post(`${API}/rounds`, round);
+  const newRound = parseItem(response, 201);
+  return newRound;
 };
 
 const deleteRound = async function(id) {
-  try {
-    const response = await axios.delete(`${API}/rounds/${id}`);
-    parseItem(response, 204);
-    return id;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const response = await axios.delete(`${API}/rounds/${id}`);
+  parseItem(response, 204);
+  return id;
 };
 
 const newRoundCard = async function(card, player, round) {
-  try {
-    const roundCard = {
-      round: round['@id'],
-      card: card['@id'],
-      player: player['@id'],
-    };
-    const response = await axios.post(`${API}/round_cards`, roundCard);
-    const newRoundCard = parseItem(response, 201);
-    return newRoundCard;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  let roundCard = {
+    round: round['@id'],
+    card: card['@id'],
+    player: player['@id'],
+  };
+  const response = await axios.post(`${API}/round_cards`, roundCard);
+  const newRoundCard = parseItem(response, 201);
+  return newRoundCard;
 };
 
 const updateRound = async function(round) {
-  try {
-    const response = await axios.put(`${API}/rounds/${round.id}`, round);
-    const updatedRound = parseItem(response, 200);
-    return updatedRound;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const response = await axios.put(`${API}/rounds/${round.id}`, round);
+  const updatedRound = parseItem(response, 200);
+  return updatedRound;
 };
 
 export const parseItem = (response, code) => {

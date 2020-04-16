@@ -7,10 +7,10 @@ import {
   GAME_UPDATE,
   GAME_CREATE,
   PLAYER_UPDATE,
-  ROUND_START,
-  ROUND_CANCEL,
+  ROUND_UPDATE,
   ROUND_CARD,
   ROUND_FINISH,
+  ALERT_UPDATE,
 } from './mutation-types';
 
 Vue.use(Vuex);
@@ -19,32 +19,35 @@ const state = () => ({
   game: {},
   player: {},
   round: {},
+  alert: '',
 });
 
 const mutations = {
   [GAME_CREATE](state, game) {
+    window.localStorage.setItem('game', JSON.stringify(game));
     state.game = game;
-    if (game.players.length) {
-      state.player = game.players[0];
-    }
   },
   [GAME_UPDATE](state, game) {
+    window.localStorage.setItem('game', JSON.stringify(game));
     state.game = game;
   },
   [PLAYER_UPDATE](state, player) {
+    window.localStorage.setItem('player', JSON.stringify(player));
     state.player = player;
   },
-  [ROUND_START](state, round) {
+  [ROUND_UPDATE](state, round) {
+    window.localStorage.setItem('round', JSON.stringify(round));
     state.round = round;
-  },
-  [ROUND_CANCEL](state) {
-    state.round = {};
   },
   [ROUND_CARD](state, card) {
     state.round.cards.push(card);
   },
   [ROUND_FINISH](state, round) {
     state.round.winner = round.winner;
+    window.localStorage.setItem('round', JSON.stringify(state.round));
+  },
+  [ALERT_UPDATE](state, alert) {
+    state.alert = round.alert;
   },
 };
 
@@ -58,17 +61,23 @@ const actions = {
   async createGameAction({ commit, state }) {
     const game = await dataService.newGame(state.player.name);
     commit(GAME_CREATE, game);
+    if (game.players.length) {
+      commit(PLAYER_UPDATE, game.players[0]);
+    }
   },
-  async getGameAction({ commit }, gameId) {
-    const game = await dataService.getGame(gameId);
+  async getGameAction({ commit, state }) {
+    const game = await dataService.getGame(state.game.id);
     commit(GAME_UPDATE, game);
   },
   async getPlayerAction({ commit, state }) {
     const player = await dataService.getPlayer(state.player.id);
     commit(PLAYER_UPDATE, player);
   },
-  async addPlayerAction({ commit, state }, playerName) {
-    const newPlayer = await dataService.addPlayer(playerName, state.game);
+  async addPlayerAction({ commit, state }) {
+    const newPlayer = await dataService.addPlayer(
+      state.player.name,
+      state.game['@id']
+    );
     commit(PLAYER_UPDATE, newPlayer);
   },
   setPlayerName({ commit, state }, value) {
@@ -78,11 +87,11 @@ const actions = {
   },
   async startRoundAction({ commit, state }) {
     const round = await dataService.newRound(state.game);
-    commit(ROUND_START, round);
+    commit(ROUND_UPDATE, round);
   },
   async cancelRoundAction({ commit, state }) {
     await dataService.delRound(state.round.id);
-    commit(ROUND_CANCEL);
+    commit(ROUND_UPDATE, {});
   },
   async playCardAction({ commit, state }, card) {
     await dataService.newRoundCard(card, state.player, state.round);
@@ -94,6 +103,18 @@ const actions = {
     round.status = 'finished';
     const finishedRound = await dataService.updateRound(round);
     commit(ROUND_FINISH, finishedRound);
+  },
+  updateAlert({ commit }, alert) {
+    commit(ALERT_UPDATE, alert);
+  },
+  setGame({ commit }, game) {
+    commit(GAME_UPDATE, game);
+  },
+  setPlayer({ commit }, player) {
+    commit(PLAYER_UPDATE, player);
+  },
+  setRound({ commit }, round) {
+    commit(ROUND_UPDATE, round);
   },
 };
 

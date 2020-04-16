@@ -28,6 +28,9 @@
             <span>Create game</span>
           </button>
         </footer>
+        <b-notification v-if="showAlert" type="is-danger" role="alert">
+          {{ alert }}
+        </b-notification>
       </div>
     </div>
     <Modal
@@ -56,11 +59,25 @@ export default {
   components: {
     Modal,
   },
-  created() {},
+  created() {
+    let game = JSON.parse(window.localStorage.getItem('game'));
+    console.log(game);
+    if (game) {
+      this.setGame(game);
+    }
+    let player = JSON.parse(window.localStorage.getItem('player'));
+    if (player) {
+      this.setPlayer(player);
+    }
+    let round = JSON.parse(window.localStorage.getItem('round'));
+    if (round) {
+      this.setRound(round);
+    }
+  },
   computed: {
-    ...mapState(['game', 'player']),
+    ...mapState(['game', 'player', 'alert']),
     isDuringGame() {
-      return this.id;
+      return this.game.id;
     },
     modalMessage() {
       return `Would you like to?`;
@@ -86,18 +103,31 @@ export default {
     ...mapActions([
       'createGameAction',
       'addPlayerAction',
+      'getGameAction',
       'setPlayerName',
       'setGameId',
+      'setGame',
+      'setRound',
+      'setPlayer',
     ]),
     async createGame() {
-      await this.createGameAction(this.player.name);
-    },
-    async joinGame() {
-      if (!this.game.id) {
-        alert('enter game id to join');
+      if (!this.player.name) {
+        alert('enter player name to create a game');
         return false;
       }
-      await this.addPlayerAction(this.player.name);
+      await this.createGameAction();
+    },
+    async joinGame() {
+      if (!this.game.id || !this.player.name) {
+        alert('enter player name and game id to join');
+        return false;
+      }
+      await this.getGameAction();
+      await this.addPlayerAction();
+      await this.getGameAction();
+    },
+    showAlert() {
+      this.alert != '';
     },
     openModal() {
       this.showModal = true;
