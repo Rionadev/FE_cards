@@ -67,16 +67,22 @@ const newRound = async function(game) {
   return newRound;
 };
 
+const getRound = async function(id) {
+  const response = await axios.get(`${API}${id}`);
+  const round = parseItem(response, 200);
+  return round;
+};
+
 const deleteRound = async function(id) {
-  const response = await axios.delete(`${API}/api/rounds/${id}`);
+  const response = await axios.delete(`${API}${id}`);
   parseItem(response, 204);
   return id;
 };
 
-const newRoundCard = async function(card, player, round) {
+const newRoundCard = async function(cardIri, player, round) {
   let roundCard = {
     round: round['@id'],
-    card: card['@id'],
+    card: cardIri,
     player: player['@id'],
   };
   const response = await axios.post(`${API}/api/round_cards`, roundCard);
@@ -108,4 +114,5 @@ export const dataService = {
   deleteRound,
   newRoundCard,
   updateRound,
+  getRound,
 };

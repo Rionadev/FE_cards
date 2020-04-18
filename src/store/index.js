@@ -10,7 +10,6 @@ import {
   ROUND_UPDATE,
   ROUND_CARD,
   ROUND_FINISH,
-  ALERT_UPDATE,
 } from './mutation-types';
 
 Vue.use(Vuex);
@@ -19,7 +18,6 @@ const state = () => ({
   game: {},
   player: {},
   round: {},
-  alert: '',
 });
 
 const mutations = {
@@ -40,14 +38,14 @@ const mutations = {
     state.round = round;
   },
   [ROUND_CARD](state, card) {
+    if (state.round.cards == undefined) {
+      state.round.cards = [];
+    }
     state.round.cards.push(card);
   },
   [ROUND_FINISH](state, round) {
     state.round.winner = round.winner;
     window.localStorage.setItem('round', JSON.stringify(state.round));
-  },
-  [ALERT_UPDATE](state, alert) {
-    state.alert = round.alert;
   },
 };
 
@@ -85,17 +83,27 @@ const actions = {
     player.name = value;
     commit(PLAYER_UPDATE, player);
   },
+  async getRoundAction({ commit, state }) {
+    const round = await dataService.getRound(state.round['@id']);
+    commit(ROUND_UPDATE, round);
+  },
   async startRoundAction({ commit, state }) {
     const round = await dataService.newRound(state.game);
     commit(ROUND_UPDATE, round);
   },
   async cancelRoundAction({ commit, state }) {
-    await dataService.delRound(state.round.id);
+    await dataService.deleteRound(state.round['@id']);
     commit(ROUND_UPDATE, {});
   },
-  async playCardAction({ commit, state }, card) {
-    await dataService.newRoundCard(card, state.player, state.round);
-    commit(ROUND_CARD, card);
+  async playCardsAction({ commit, state }, cards) {
+    cards.forEach(async function(cardIri) {
+      const playedCard = await dataService.newRoundCard(
+        cardIri,
+        state.player,
+        state.round
+      );
+      commit(ROUND_CARD, playedCard);
+    });
   },
   async finishRound({ commit, state }, player) {
     const round = state.round;
@@ -103,9 +111,6 @@ const actions = {
     round.status = 'finished';
     const finishedRound = await dataService.updateRound(round);
     commit(ROUND_FINISH, finishedRound);
-  },
-  updateAlert({ commit }, alert) {
-    commit(ALERT_UPDATE, alert);
   },
   setGame({ commit }, game) {
     commit(GAME_UPDATE, game);
