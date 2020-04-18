@@ -1,0 +1,228 @@
+<template>
+  <div>
+    <b-collapse
+      class="card"
+      animation="slide"
+      aria-id="roundCard"
+      v-if="game.scores"
+    >
+      <div
+        slot="trigger"
+        slot-scope="props"
+        class="card-header"
+        role="button"
+        aria-controls="roundCard"
+      >
+        <p class="card-header-title">
+          Round
+        </p>
+        <a class="card-header-icon">
+          <b-icon :icon="props.open ? 'menu-down' : 'menu-up'"> </b-icon>
+        </a>
+      </div>
+      <div class="card-content" v-if="round.questionCard">
+        <img :src="getCardImage(round.questionCard.image)" />
+        <nav class="level is-mobile">
+          <div
+            class="level-item has-text-centered"
+            :class="roundCardsSelected()"
+          >
+            <div>
+              <p class="heading">Answers needed</p>
+              <p class="title">
+                {{ round.questionCard.answerCount }}
+              </p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Cards Played</p>
+              <p class="title">{{ round.cardsPlayedCount }}</p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Winner</p>
+              <p class="title">
+                {{ round.winner ? round.winner.name : '--' }}
+              </p>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <footer class="card-footer">
+        <b-button
+          :type="getButtonColor('startRound')"
+          class="card-footer-item"
+          @click="startRound"
+          >Start round</b-button
+        >
+        <b-button
+          :type="getButtonColor('refreshRound')"
+          class="card-footer-item"
+          @click="getRoundAction"
+          >Refresh round</b-button
+        >
+        <b-button type="is-light" class="card-footer-item" @click="cancelRound"
+          >Cancel round</b-button
+        >
+        <b-button type="is-light" class="card-footer-item" @click="finishRound"
+          >Finish round</b-button
+        >
+      </footer>
+    </b-collapse>
+    <b-modal
+      :active.sync="isRoundModalActive"
+      has-modal-card
+      trap-focus
+      aria-role="dialog"
+      aria-modal
+    >
+      <div class="modal-card" style="width: auto">
+        <header class="modal-card-head">
+          <p class="modal-card-title">And the winner is:</p>
+        </header>
+        <section class="modal-card-body">
+          <div class="block">
+            <div
+              v-for="player in game.players"
+              :key="player.id"
+              class="level-item has-text-centered"
+            >
+              <b-radio
+                v-model="winner"
+                name="winner"
+                :native-value="player['@id']"
+              >
+                {{ player.name }}
+              </b-radio>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button
+            class="button"
+            type="button"
+            @click="isRoundModalActive = false"
+          >
+            Close
+          </button>
+          <button class="button is-primary" @click="setRoundWinner()">
+            Finish round
+          </button>
+        </footer>
+      </div>
+    </b-modal>
+  </div>
+</template>
+
+<script>
+import { mapActions, mapGetters, mapState } from 'vuex';
+import _ from 'lodash';
+import { ToastProgrammatic as Toast } from 'buefy';
+import { mixin } from '../shared/mixins';
+
+export default {
+  name: 'Round',
+  data() {
+    return {
+      notification: {},
+      isRoundModalActive: false,
+      winner: '',
+    };
+  },
+  created() {
+    let round = JSON.parse(window.localStorage.getItem('round'));
+    if (round) {
+      this.setRound(round);
+    }
+  },
+  mixins: [mixin],
+  computed: {
+    ...mapState(['game', 'player', 'round', 'cardsSelected']),
+  },
+  methods: {
+    ...mapActions([
+      'startRoundAction',
+      'cancelRoundAction',
+      'finishRoundAction',
+      'setRound',
+      'getRoundAction',
+    ]),
+    async startRound() {
+      await this.startRoundAction();
+    },
+    async cancelRound() {
+      if (!this.round.questionCard) {
+        Toast.open({
+          message: 'no round in progress',
+          type: 'is-danger',
+        });
+        return false;
+      }
+      await this.cancelRoundAction();
+      this.setRound(this.round);
+    },
+    async finishRound() {
+      if (!this.round.questionCard) {
+        Toast.open({
+          message: 'no round in progress',
+          type: 'is-danger',
+        });
+        return false;
+      }
+      if (!this.round.cardsPlayedCount) {
+        Toast.open({
+          message: 'no cards played - cancel round if you want',
+          type: 'is-danger',
+        });
+        return false;
+      }
+
+      if (
+        this.round.questionCard.answerCount * this.game.playersCount >
+        this.round.cardsPlayedCount
+      ) {
+        this.$buefy.dialog.confirm({
+          title: 'Confirm',
+          message:
+            'Not all players ready. Do you still want to finish this round?',
+          confirmText: 'Finish round',
+          type: 'is-danger',
+          hasIcon: true,
+          onConfirm: () => {
+            this.isRoundModalActive = true;
+          },
+        });
+      }
+
+      this.isRoundModalActive = true;
+      this.winner = '';
+      return false;
+    },
+    async setRoundWinner() {
+      this.isRoundModalActive = false;
+      await this.finishRoundAction(this.winner);
+      Toast.open({
+        message: 'Round finished, how about starting another one?',
+        type: 'is-success',
+      });
+    },
+    showWinnerDialog() {
+      Toast.open({
+        message: 'TODO',
+        type: 'is-danger',
+      });
+    },
+    roundCardsSelected() {
+      if (
+        this.round.questionCard &&
+        this.round.questionCard.answerCount != this.cardsSelected.length
+      ) {
+        return 'has-background-danger';
+      }
+      return 'has-background-success';
+    },
+  },
+};
+</script>

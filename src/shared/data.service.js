@@ -90,8 +90,8 @@ const newRoundCard = async function(cardIri, player, round) {
   return newRoundCard;
 };
 
-const updateRound = async function(round) {
-  const response = await axios.put(`${API}/api/rounds/${round.id}`, round);
+const updateRound = async function(round, put) {
+  const response = await axios.put(`${API}${round['@id']}`, put);
   const updatedRound = parseItem(response, 200);
   return updatedRound;
 };

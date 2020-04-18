@@ -7,9 +7,12 @@ import {
   GAME_UPDATE,
   GAME_CREATE,
   PLAYER_UPDATE,
+  ROUND_NEW,
   ROUND_UPDATE,
   ROUND_CARD,
   ROUND_FINISH,
+  ROUND_PLAYED,
+  CARDS_SELECTED,
 } from './mutation-types';
 
 Vue.use(Vuex);
@@ -18,6 +21,8 @@ const state = () => ({
   game: {},
   player: {},
   round: {},
+  cardsSelected: [],
+  roundPlayed: false,
 });
 
 const mutations = {
@@ -37,6 +42,10 @@ const mutations = {
     window.localStorage.setItem('round', JSON.stringify(round));
     state.round = round;
   },
+  [ROUND_NEW](state, round) {
+    state.round = round;
+    window.localStorage.setItem('round', JSON.stringify(round));
+  },
   [ROUND_CARD](state, card) {
     if (state.round.cards == undefined) {
       state.round.cards = [];
@@ -46,6 +55,14 @@ const mutations = {
   [ROUND_FINISH](state, round) {
     state.round.winner = round.winner;
     window.localStorage.setItem('round', JSON.stringify(state.round));
+  },
+  [ROUND_PLAYED](state, roundPlayed) {
+    state.roundPlayed = roundPlayed;
+    window.localStorage.setItem('roundPlayed', JSON.stringify(roundPlayed));
+  },
+  [CARDS_SELECTED](state, cards) {
+    state.cardsSelected = cards;
+    window.localStorage.setItem('cardsSelected', JSON.stringify(cards));
   },
 };
 
@@ -89,7 +106,9 @@ const actions = {
   },
   async startRoundAction({ commit, state }) {
     const round = await dataService.newRound(state.game);
-    commit(ROUND_UPDATE, round);
+    commit(ROUND_NEW, round);
+    commit(ROUND_PLAYED, false);
+    commit(CARDS_SELECTED, []);
   },
   async cancelRoundAction({ commit, state }) {
     await dataService.deleteRound(state.round['@id']);
@@ -105,11 +124,12 @@ const actions = {
       commit(ROUND_CARD, playedCard);
     });
   },
-  async finishRound({ commit, state }, player) {
-    const round = state.round;
-    round.winner = player;
-    round.status = 'finished';
-    const finishedRound = await dataService.updateRound(round);
+  async finishRoundAction({ commit, state }, playerIri) {
+    const roundPut = {
+      winner: playerIri,
+      status: 'finished',
+    };
+    const finishedRound = await dataService.updateRound(state.round, roundPut);
     commit(ROUND_FINISH, finishedRound);
   },
   setGame({ commit }, game) {
@@ -120,6 +140,12 @@ const actions = {
   },
   setRound({ commit }, round) {
     commit(ROUND_UPDATE, round);
+  },
+  setRoundPlayed({ commit }, roundPlayed) {
+    commit(ROUND_PLAYED, roundPlayed);
+  },
+  setCardsSelected({ commit }, cardsSelected) {
+    commit(CARDS_SELECTED, cardsSelected);
   },
 };
 
