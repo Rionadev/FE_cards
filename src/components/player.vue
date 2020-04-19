@@ -140,6 +140,9 @@ export default {
       );
     },
     async playCards() {
+      if (this.playCardsDisabled()) {
+        return false;
+      }
       await this.playCardsAction(this.cardsSelected);
       this.setRoundPlayed(true);
       Toast.open({
