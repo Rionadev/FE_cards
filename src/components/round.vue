@@ -22,7 +22,7 @@
       </div>
       <div class="card-content" v-if="round && round.questionCard">
         <img :src="getCardImage(round.questionCard.image)" />
-        <nav class="level is-mobile">
+        <nav class="level">
           <div
             class="level-item has-text-centered"
             :class="roundCardsSelected()"
