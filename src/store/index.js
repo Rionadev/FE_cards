@@ -54,6 +54,7 @@ const mutations = {
   },
   [ROUND_FINISH](state, round) {
     state.round.winner = round.winner;
+    state.round.status = round.status;
     window.localStorage.setItem('round', JSON.stringify(state.round));
   },
   [ROUND_PLAYED](state, roundPlayed) {
@@ -84,6 +85,11 @@ const actions = {
   async getGameAction({ commit, state }) {
     const game = await dataService.getGame(state.game.id);
     commit(GAME_UPDATE, game);
+    if (!game.activeRound || game.activeRound['@id'] != state.round['@id']) {
+      commit(ROUND_UPDATE, game.activeRound ? game.activeRound : {});
+      commit(ROUND_PLAYED, false);
+      commit(CARDS_SELECTED, []);
+    }
   },
   async getPlayerAction({ commit, state }) {
     const player = await dataService.getPlayer(state.player.id);
@@ -103,6 +109,10 @@ const actions = {
   },
   async getRoundAction({ commit, state }) {
     const round = await dataService.getRound(state.round['@id']);
+    if (round['@id'] != state.round['@id']) {
+      commit(ROUND_PLAYED, false);
+      commit(CARDS_SELECTED, []);
+    }
     commit(ROUND_UPDATE, round);
   },
   async startRoundAction({ commit, state }) {

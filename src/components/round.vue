@@ -20,7 +20,7 @@
           <b-icon :icon="props.open ? 'menu-down' : 'menu-up'"> </b-icon>
         </a>
       </div>
-      <div class="card-content" v-if="round.questionCard">
+      <div class="card-content" v-if="round && round.questionCard">
         <img :src="getCardImage(round.questionCard.image)" />
         <nav class="level is-mobile">
           <div
@@ -74,7 +74,10 @@
         <b-button type="is-light" class="card-footer-item" @click="cancelRound"
           >Cancel round</b-button
         >
-        <b-button type="is-light" class="card-footer-item" @click="finishRound"
+        <b-button
+          :type="getButtonColor('finishRound')"
+          class="card-footer-item"
+          @click="finishRound"
           >Finish round</b-button
         >
       </footer>
@@ -85,7 +88,7 @@
       trap-focus
       aria-role="dialog"
       aria-modal
-      v-if="round.questionCard"
+      v-if="round && round.questionCard"
     >
       <div class="modal-card" style="width: auto">
         <header class="modal-card-head">
@@ -95,11 +98,9 @@
           <div class="block">
             <img :src="getCardImage(round.questionCard.image)" />
           </div>
-        </section>
-        <header class="modal-card-head">
-          <p class="modal-card-title">And the winner is:</p>
-        </header>
-        <section class="modal-card-body">
+          <header class="modal-card-head">
+            <p class="modal-card-title">And the winner is:</p>
+          </header>
           <div class="block">
             <div
               v-for="playerAnswers in round.playersAnswers"
@@ -158,8 +159,10 @@ export default {
     let round = JSON.parse(window.localStorage.getItem('round'));
     if (round) {
       this.setRound(round);
+    } else {
+      this.setRound({});
     }
-    this.timer = setInterval(this.refresh, 3000);
+    this.startAutoUpdate();
   },
   beforeDestroy() {
     clearInterval(this.timer);
@@ -178,9 +181,10 @@ export default {
     ]),
     async startRound() {
       await this.startRoundAction();
+      this.startAutoUpdate();
     },
     async cancelRound() {
-      if (!this.round.questionCard) {
+      if (!this.round || !this.round.questionCard) {
         Toast.open({
           message: 'no round in progress',
           type: 'is-danger',
@@ -232,12 +236,15 @@ export default {
           type: 'is-danger',
           hasIcon: true,
           onConfirm: () => {
+            this.cancelAutoUpdate();
             this.isRoundModalActive = true;
           },
         });
+      } else {
+        this.cancelAutoUpdate();
+        this.isRoundModalActive = true;
       }
 
-      this.isRoundModalActive = true;
       this.winner = '';
       return false;
     },
@@ -249,23 +256,18 @@ export default {
         type: 'is-success',
       });
     },
-    showWinnerDialog() {
-      Toast.open({
-        message: 'TODO',
-        type: 'is-danger',
-      });
-    },
     roundCardsSelected() {
       if (
-        this.round.questionCard &&
-        this.round.questionCard.answerCount != this.cardsSelected.length
+        !this.cardsSelected ||
+        (this.round.questionCard &&
+          this.round.questionCard.answerCount != this.cardsSelected.length)
       ) {
         return 'has-background-danger';
       }
       return 'has-background-success';
     },
     async refresh() {
-      if (this.round['@id']) {
+      if (this.round['@id'] && this.round.status === 'new') {
         console.log('round refresh');
         await this.getRoundAction();
       } else {
@@ -274,6 +276,10 @@ export default {
     },
     cancelAutoUpdate() {
       clearInterval(this.timer);
+    },
+    startAutoUpdate() {
+      this.cancelAutoUpdate();
+      this.timer = setInterval(this.refresh, 3000);
     },
   },
 };

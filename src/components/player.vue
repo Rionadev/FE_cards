@@ -90,14 +90,18 @@ export default {
       this.setPlayer(player);
     }
     let roundPlayed = JSON.parse(window.localStorage.getItem('roundPlayed'));
-    if (roundPlayed !== undefined) {
+    if (roundPlayed) {
       this.setRoundPlayed(roundPlayed);
+    } else {
+      this.setRoundPlayed(false);
     }
     let cardsSelected = JSON.parse(
       window.localStorage.getItem('cardsSelected')
     );
-    if (cardsSelected !== undefined) {
+    if (cardsSelected) {
       this.setCardsSelected(cardsSelected);
+    } else {
+      this.setCardsSelected([]);
     }
 
     this.debouncedLSSync = _.debounce(this.localStorageSync, 1000);
@@ -148,7 +152,6 @@ export default {
       if (this.roundPlayed) {
         return false;
       }
-
       let selected = this.cardsSelected.filter(function(card) {
         return card === cardId;
       });
@@ -180,6 +183,9 @@ export default {
       }
     },
     checkCardSelected(cardId) {
+      if (!this.cardsSelected) {
+        return '';
+      }
       let selected = this.cardsSelected.filter(function(card) {
         return card === cardId;
       });
@@ -187,6 +193,7 @@ export default {
     },
     playCardsDisabled() {
       return (
+        !this.cardsSelected ||
         !this.round.questionCard ||
         this.round.questionCard.answerCount !== this.cardsSelected.length ||
         this.roundPlayed
