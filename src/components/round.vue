@@ -255,6 +255,7 @@ export default {
         message: 'Round finished, how about starting another one?',
         type: 'is-success',
       });
+      this.startAutoUpdate();
     },
     roundCardsSelected() {
       if (
