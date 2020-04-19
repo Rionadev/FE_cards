@@ -5,12 +5,12 @@ export const mixin = {
     getButtonColor: function(button) {
       switch (button) {
         case 'startRound':
-          if (!this.round.questionCard) {
+          if (!this.round.questionCard || this.round.status === 'finished') {
             return 'is-success';
           }
           break;
         case 'refreshRound':
-          if (this.round.questionCard) {
+          if (this.round.questionCard && this.round.status !== 'finished') {
             return 'is-success';
           }
           break;

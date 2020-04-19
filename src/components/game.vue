@@ -44,14 +44,39 @@
           </div>
         </nav>
       </div>
-      <div class="content">
-        <b-field label="Game ID">
-          <b-input v-model="gameId"></b-input>
-        </b-field>
-        <b-field label="Your name">
-          <b-input v-model="playerName"></b-input>
-        </b-field>
-      </div>
+      <section class="hero">
+        <div class="hero-body">
+          <div class="container">
+            <b-field grouped>
+              <b-field label="Game ID" expanded>
+                <b-field>
+                  <b-input
+                    placeholder="Paste game ID here to join"
+                    v-model="gameId"
+                    expanded
+                  ></b-input>
+                  <button class="button">
+                    <b-icon
+                      pack="fas"
+                      icon="copy"
+                      title="copy to clipboard"
+                      v-clipboard:copy="gameId"
+                      v-clipboard:success="onCopy"
+                      v-clipboard:error="onError"
+                    ></b-icon>
+                  </button>
+                </b-field>
+              </b-field>
+              <b-field label="Your name" expanded>
+                <b-input
+                  placeholder="Player name"
+                  v-model="playerName"
+                ></b-input>
+              </b-field>
+            </b-field>
+          </div>
+        </div>
+      </section>
     </div>
     <footer class="card-footer">
       <b-button
@@ -162,6 +187,18 @@ export default {
     },
     cancelAutoUpdate() {
       clearInterval(this.timer);
+    },
+    onCopy(e) {
+      Toast.open({
+        message: 'You just copied: ' + e.text,
+        type: 'is-success',
+      });
+    },
+    onError(e) {
+      Toast.open({
+        message: 'Failed to copy text',
+        type: 'is-danger',
+      });
     },
   },
 };

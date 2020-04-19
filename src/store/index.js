@@ -79,6 +79,7 @@ const actions = {
     if (game.players.length) {
       commit(PLAYER_UPDATE, game.players[0]);
     }
+    commit(ROUND_UPDATE, {});
   },
   async getGameAction({ commit, state }) {
     const game = await dataService.getGame(state.game.id);

@@ -28,7 +28,7 @@
         <div class="level-item has-text-centered">
           <div>
             <p class="heading">Selected</p>
-            <p class="title">{{ cardsSelected.length }}</p>
+            <p class="title">{{ cardsSelected ? cardsSelected.length : 0 }}</p>
           </div>
         </div>
       </nav>

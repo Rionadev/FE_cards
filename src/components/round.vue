@@ -4,7 +4,7 @@
       class="card"
       animation="slide"
       aria-id="roundCard"
-      v-if="game.scores"
+      v-if="game.id"
     >
       <div
         slot="trigger"
@@ -85,6 +85,7 @@
       trap-focus
       aria-role="dialog"
       aria-modal
+      v-if="round.questionCard"
     >
       <div class="modal-card" style="width: auto">
         <header class="modal-card-head">
@@ -267,6 +268,8 @@ export default {
       if (this.round['@id']) {
         console.log('round refresh');
         await this.getRoundAction();
+      } else {
+        this.setRound(this.round);
       }
     },
     cancelAutoUpdate() {
