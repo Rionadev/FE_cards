@@ -101,6 +101,10 @@ export default {
     }
 
     this.debouncedLSSync = _.debounce(this.localStorageSync, 1000);
+    this.timer = setInterval(this.refresh, 3000);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
   watch: {
     cardsSelected: function() {
@@ -118,7 +122,6 @@ export default {
       'getPlayerAction',
       'playCardsAction',
       'setPlayer',
-      'getRoundAction',
       'setRoundPlayed',
       'setCardsSelected',
     ]),
@@ -188,6 +191,15 @@ export default {
         this.round.questionCard.answerCount !== this.cardsSelected.length ||
         this.roundPlayed
       );
+    },
+    async refresh() {
+      if (this.player['@id']) {
+        console.log('player refresh');
+        await this.getPlayerAction();
+      }
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
     },
   },
 };

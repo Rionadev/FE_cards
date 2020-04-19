@@ -42,6 +42,14 @@
           </div>
           <div class="level-item has-text-centered">
             <div>
+              <p class="heading">Status</p>
+              <p class="title">
+                {{ round.status }}
+              </p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
               <p class="heading">Winner</p>
               <p class="title">
                 {{ round.winner ? round.winner.name : '--' }}
@@ -80,22 +88,36 @@
     >
       <div class="modal-card" style="width: auto">
         <header class="modal-card-head">
+          <p class="modal-card-title">The question was:</p>
+        </header>
+        <section class="modal-card-body">
+          <div class="block">
+            <img :src="getCardImage(round.questionCard.image)" />
+          </div>
+        </section>
+        <header class="modal-card-head">
           <p class="modal-card-title">And the winner is:</p>
         </header>
         <section class="modal-card-body">
           <div class="block">
             <div
-              v-for="player in game.players"
-              :key="player.id"
-              class="level-item has-text-centered"
+              v-for="playerAnswers in round.playersAnswers"
+              :key="playerAnswers.player.id"
             >
-              <b-radio
-                v-model="winner"
-                name="winner"
-                :native-value="player['@id']"
-              >
-                {{ player.name }}
-              </b-radio>
+              <p>
+                <b-radio
+                  v-model="winner"
+                  name="winner"
+                  :native-value="playerAnswers.player['@id']"
+                >
+                  {{ playerAnswers.player.name }}
+                </b-radio>
+              </p>
+              <div v-for="card in playerAnswers.cards" :key="card['@id']">
+                <div class="card-answer">
+                  <img :src="getCardImage(card.image)" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -136,6 +158,10 @@ export default {
     if (round) {
       this.setRound(round);
     }
+    this.timer = setInterval(this.refresh, 3000);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
   mixins: [mixin],
   computed: {
@@ -160,10 +186,24 @@ export default {
         });
         return false;
       }
+      if (this.round.status === 'finished') {
+        Toast.open({
+          message: 'cannot cancel finished round',
+          type: 'is-danger',
+        });
+        return false;
+      }
       await this.cancelRoundAction();
       this.setRound(this.round);
     },
     async finishRound() {
+      if (this.round.status === 'finished') {
+        Toast.open({
+          message: 'round alredy finished',
+          type: 'is-danger',
+        });
+        return false;
+      }
       if (!this.round.questionCard) {
         Toast.open({
           message: 'no round in progress',
@@ -222,6 +262,15 @@ export default {
         return 'has-background-danger';
       }
       return 'has-background-success';
+    },
+    async refresh() {
+      if (this.round['@id']) {
+        console.log('round refresh');
+        await this.getRoundAction();
+      }
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
     },
   },
 };

@@ -87,15 +87,19 @@ export default {
   data() {
     return {
       notification: {},
+      timer: '',
     };
   },
   mixins: [mixin],
   created() {
     let game = JSON.parse(window.localStorage.getItem('game'));
-    console.log(game);
     if (game) {
       this.setGame(game);
     }
+    this.timer = setInterval(this.refresh, 3000);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
   computed: {
     ...mapState(['game', 'player', 'round']),
@@ -149,6 +153,15 @@ export default {
       await this.getGameAction();
       await this.addPlayerAction();
       await this.getGameAction();
+    },
+    async refresh() {
+      if (this.game.id) {
+        console.log('game refresh');
+        await this.getGameAction();
+      }
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
     },
   },
 };
