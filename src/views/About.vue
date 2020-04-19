@@ -1,10 +1,27 @@
 <template>
   <div class="about">
     <section class="hero">
+      <h2 class="subtitle">
+        Based on:
+      </h2>
+      <h2 class="subtitle">
+        <a target="_blank" href="https://kartydzentelmenow.pl"
+          >kartydzentelmenow.pl</a
+        >
+      </h2>
+      <h2 class="subtitle">
+        How to:
+      </h2>
+      <section>
+        <img alt="Rules" src="../assets/howto1.png" />
+        <img alt="Rules" src="../assets/howto2.png" />
+      </section>
+    </section>
+    <section class="hero">
       <div class="hero-body">
         <div class="container">
           <h1 class="title">
-            Find the code on Github:
+            Code on Github:
           </h1>
         </div>
       </div>

@@ -4,7 +4,7 @@
     <section>
       <div class="tile is-parent">
         <article class="tile is-child is-danger">
-          <p class="title">Welcome to the Game!</p>
+          <p class="title">Karty dżentelmenów</p>
           <div class="content">
             <Game />
             <Round />
