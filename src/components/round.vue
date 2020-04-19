@@ -63,22 +63,22 @@
           :type="getButtonColor('startRound')"
           class="card-footer-item"
           @click="startRound"
-          >Start round</b-button
+          >Start</b-button
         >
         <b-button
           :type="getButtonColor('refreshRound')"
           class="card-footer-item"
           @click="getRoundAction"
-          >Refresh round</b-button
+          >Refresh</b-button
         >
         <b-button type="is-light" class="card-footer-item" @click="cancelRound"
-          >Cancel round</b-button
+          >Cancel</b-button
         >
         <b-button
           :type="getButtonColor('finishRound')"
           class="card-footer-item"
           @click="finishRound"
-          >Finish round</b-button
+          >Finish</b-button
         >
       </footer>
     </b-collapse>

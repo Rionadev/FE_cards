@@ -83,7 +83,7 @@
         :type="getButtonColor('beforeGame')"
         class="card-footer-item"
         @click="joinGame"
-        >Join game</b-button
+        >Join</b-button
       >
       <b-button
         :type="getButtonColor('reloadGame')"
@@ -95,7 +95,7 @@
         :type="getButtonColor('beforeGame')"
         class="card-footer-item"
         @click="createGame"
-        >Create a game</b-button
+        >Create</b-button
       >
     </footer>
   </b-collapse>
