@@ -165,7 +165,21 @@ export default {
         });
         return false;
       }
-      await this.createGameAction();
+
+      if (this.game.id) {
+        this.$buefy.dialog.confirm({
+          title: 'Confirm',
+          message: 'You will leave current game. Are you sure?',
+          confirmText: 'Reset game',
+          type: 'is-danger',
+          hasIcon: true,
+          onConfirm: async () => {
+            await this.createGameAction();
+          },
+        });
+      } else {
+        await this.createGameAction();
+      }
     },
     async joinGame() {
       if (!this.game.id || !this.player.name) {
