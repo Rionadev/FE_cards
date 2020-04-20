@@ -60,7 +60,7 @@
                       pack="fas"
                       icon="copy"
                       title="copy to clipboard"
-                      v-clipboard:copy="gameId"
+                      v-clipboard:copy="getGameUrl(gameId)"
                       v-clipboard:success="onCopy"
                       v-clipboard:error="onError"
                     ></b-icon>
@@ -88,7 +88,7 @@
       <b-button
         :type="getButtonColor('reloadGame')"
         class="card-footer-item"
-        @click="getGameAction"
+        @click="reloadGame"
         >Reload</b-button
       >
       <b-button
@@ -113,15 +113,20 @@ export default {
     return {
       notification: {},
       timer: '',
+      retry: 3,
     };
   },
   mixins: [mixin],
   created() {
-    let game = JSON.parse(window.localStorage.getItem('game'));
-    if (game) {
-      this.setGame(game);
+    if (this.$route.query.game) {
+      this.gameId = this.$route.query.game;
+    } else {
+      let game = JSON.parse(window.localStorage.getItem('game'));
+      if (game) {
+        this.setGame(game);
+      }
     }
-    this.timer = setInterval(this.refresh, 3000);
+    this.startAutoUpdate();
   },
   beforeDestroy() {
     clearInterval(this.timer);
@@ -181,6 +186,9 @@ export default {
         await this.createGameAction();
       }
     },
+    async reloadGame() {
+      await this.refresh();
+    },
     async joinGame() {
       if (!this.game.id || !this.player.name) {
         Toast.open({
@@ -194,13 +202,26 @@ export default {
       await this.getGameAction();
     },
     async refresh() {
-      if (this.game.id) {
-        console.log('game refresh');
-        await this.getGameAction();
+      try {
+        if (this.game.id) {
+          console.log('game refresh');
+          await this.getGameAction();
+          this.startAutoUpdate();
+        }
+      } catch (error) {
+        this.cancelAutoUpdate();
+        this.setGame({
+          id: this.gameId,
+        });
       }
     },
     cancelAutoUpdate() {
+      console.log('cancel autoupdate game');
       clearInterval(this.timer);
+    },
+    startAutoUpdate() {
+      clearInterval(this.timer);
+      this.timer = setInterval(this.refresh, 3000);
     },
     onCopy(e) {
       Toast.open({

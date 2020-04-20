@@ -1,4 +1,4 @@
-import { API } from './config';
+import { API, URL } from './config';
 
 export const mixin = {
   methods: {
@@ -49,6 +49,9 @@ export const mixin = {
     },
     getCardImage: function(image) {
       return API + image;
+    },
+    getGameUrl(gameId) {
+      return URL + '?game=' + gameId;
     },
     scrollToTop() {
       window.scrollTo(0, 0);
