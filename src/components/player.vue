@@ -150,6 +150,7 @@ export default {
         type: 'is-success',
       });
       this.getPlayerAction();
+      this.$scrollTo('#round-card');
     },
     toggleCardSelect(cardId) {
       if (this.roundPlayed) {

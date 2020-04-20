@@ -50,5 +50,8 @@ export const mixin = {
     getCardImage: function(image) {
       return API + image;
     },
+    scrollToTop() {
+      window.scrollTo(0, 0);
+    },
   },
 };

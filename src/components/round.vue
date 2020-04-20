@@ -12,6 +12,7 @@
         class="card-header"
         role="button"
         aria-controls="roundCard"
+        id="round-card"
       >
         <p class="card-header-title">
           Round
@@ -124,11 +125,7 @@
           </div>
         </section>
         <footer class="modal-card-foot">
-          <button
-            class="button"
-            type="button"
-            @click="isRoundModalActive = false"
-          >
+          <button class="button" type="button" @click="closeWinnerPopup()">
             Close
           </button>
           <button class="button is-primary" @click="setRoundWinner()">
@@ -153,6 +150,7 @@ export default {
       notification: {},
       isRoundModalActive: false,
       winner: '',
+      currentRoundIri: '',
     };
   },
   created() {
@@ -274,6 +272,11 @@ export default {
       } else {
         this.setRound(this.round);
       }
+
+      if (this.round['@id'] != this.currentRoundIri) {
+        this.isRoundModalActive = false;
+        this.startAutoUpdate();
+      }
     },
     cancelAutoUpdate() {
       clearInterval(this.timer);
@@ -281,6 +284,10 @@ export default {
     startAutoUpdate() {
       this.cancelAutoUpdate();
       this.timer = setInterval(this.refresh, 3000);
+    },
+    closeWinnerPopup() {
+      this.isRoundModalActive = false;
+      this.startAutoUpdate();
     },
   },
 };
