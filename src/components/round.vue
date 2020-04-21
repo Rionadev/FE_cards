@@ -234,12 +234,12 @@ export default {
           type: 'is-danger',
           hasIcon: true,
           onConfirm: () => {
-            this.cancelAutoUpdate();
+            // this.cancelAutoUpdate();
             this.isRoundModalActive = true;
           },
         });
       } else {
-        this.cancelAutoUpdate();
+        // this.cancelAutoUpdate();
         this.isRoundModalActive = true;
       }
 
@@ -274,6 +274,7 @@ export default {
       }
 
       if (this.round['@id'] != this.currentRoundIri) {
+        this.currentRoundIri = this.round['@id'];
         this.isRoundModalActive = false;
         this.startAutoUpdate();
       }
