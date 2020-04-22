@@ -104,21 +104,18 @@
           </header>
           <div class="block">
             <div
-              v-for="playerAnswers in round.playersAnswers"
+              v-for="playerAnswers in roundAnswers"
               :key="playerAnswers.player.id"
             >
-              <p>
-                <b-radio
-                  v-model="winner"
-                  name="winner"
-                  :native-value="playerAnswers.player['@id']"
-                >
-                  {{ playerAnswers.player.name }}
-                </b-radio>
-              </p>
               <div v-for="card in playerAnswers.cards" :key="card['@id']">
-                <div class="card-answer">
-                  <img :src="getCardImage(card.image)" />
+                <div
+                  class="card-answer"
+                  :class="winnerCardSelected(playerAnswers.player['@id'])"
+                >
+                  <img
+                    :src="getCardImage(card.image)"
+                    @click="setWinner(playerAnswers.player['@id'])"
+                  />
                 </div>
               </div>
             </div>
@@ -151,6 +148,7 @@ export default {
       isRoundModalActive: false,
       winner: '',
       currentRoundIri: '',
+      roundAnswers: [],
     };
   },
   created() {
@@ -242,9 +240,19 @@ export default {
         // this.cancelAutoUpdate();
         this.isRoundModalActive = true;
       }
-
+      this.roundAnswers = _.shuffle(this.round.playersAnswers);
       this.winner = '';
       return false;
+    },
+    setWinner(playerIri) {
+      this.winner = playerIri;
+    },
+    winnerCardSelected(playerIri) {
+      if (this.winner == playerIri) {
+        return 'has-background-success';
+      } else {
+        return '';
+      }
     },
     async setRoundWinner() {
       this.isRoundModalActive = false;
@@ -256,6 +264,16 @@ export default {
       this.startAutoUpdate();
     },
     roundCardsSelected() {
+      if (
+        !this.cardsSelected ||
+        (this.round.questionCard &&
+          this.round.questionCard.answerCount != this.cardsSelected.length)
+      ) {
+        return 'has-background-danger';
+      }
+      return 'has-background-success';
+    },
+    winnerSelected() {
       if (
         !this.cardsSelected ||
         (this.round.questionCard &&
