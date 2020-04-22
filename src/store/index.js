@@ -85,7 +85,7 @@ const actions = {
   async getGameAction({ commit, state }) {
     const game = await dataService.getGame(state.game.id);
     commit(GAME_UPDATE, game);
-    if (!game.activeRound || game.activeRound['@id'] != state.round['@id']) {
+    if (game.activeRound && game.activeRound['@id'] != state.round['@id']) {
       commit(ROUND_UPDATE, game.activeRound ? game.activeRound : {});
       commit(ROUND_PLAYED, false);
       commit(CARDS_SELECTED, []);

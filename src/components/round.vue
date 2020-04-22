@@ -23,6 +23,11 @@
       </div>
       <div class="card-content" v-if="round && round.questionCard">
         <img :src="getCardImage(round.questionCard.image)" />
+        <div v-for="card in round.winnerCards" :key="card['@id']">
+          <div class="card-answer">
+            <img :src="getCardImage(card.image)" />
+          </div>
+        </div>
         <nav class="level">
           <div
             class="level-item has-text-centered"
