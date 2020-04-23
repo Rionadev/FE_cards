@@ -289,7 +289,7 @@ export default {
       return 'has-background-success';
     },
     async refresh() {
-      if (this.round['@id'] && this.round.status === 'new') {
+      if (this.round['@id'] && !this.isRoundModalActive) {
         console.log('round refresh');
         await this.getRoundAction();
       } else {
