@@ -74,8 +74,8 @@ const actions = {
     game.id = value;
     commit(GAME_UPDATE, game);
   },
-  async createGameAction({ commit, state }) {
-    const game = await dataService.newGame(state.player.name);
+  async createGameAction({ commit, state }, playerName) {
+    const game = await dataService.newGame(playerName);
     commit(GAME_CREATE, game);
     if (game.players.length) {
       commit(PLAYER_UPDATE, game.players[0]);
@@ -95,9 +95,9 @@ const actions = {
     const player = await dataService.getPlayer(state.player.id);
     commit(PLAYER_UPDATE, player);
   },
-  async addPlayerAction({ commit, state }) {
+  async addPlayerAction({ commit, state }, playerName) {
     const newPlayer = await dataService.addPlayer(
-      state.player.name,
+      playerName,
       state.game['@id']
     );
     commit(PLAYER_UPDATE, newPlayer);

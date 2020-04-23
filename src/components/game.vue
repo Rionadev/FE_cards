@@ -114,6 +114,7 @@ export default {
       notification: {},
       timer: '',
       retry: 3,
+      playerName: '',
     };
   },
   mixins: [mixin],
@@ -124,6 +125,10 @@ export default {
       let game = JSON.parse(window.localStorage.getItem('game'));
       if (game) {
         this.setGame(game);
+      }
+      let player = JSON.parse(window.localStorage.getItem('player'));
+      if (player) {
+        this.playerName = player.name;
       }
     }
     this.startAutoUpdate();
@@ -144,14 +149,6 @@ export default {
         this.setGameId(value);
       },
     },
-    playerName: {
-      get() {
-        return this.player.name;
-      },
-      set(value) {
-        this.setPlayerName(value);
-      },
-    },
   },
   methods: {
     ...mapActions([
@@ -163,7 +160,7 @@ export default {
       'setGame',
     ]),
     async createGame() {
-      if (!this.player.name) {
+      if (!this.playerName) {
         Toast.open({
           message: 'enter player name to create a game',
           type: 'is-danger',
@@ -179,18 +176,18 @@ export default {
           type: 'is-danger',
           hasIcon: true,
           onConfirm: async () => {
-            await this.createGameAction();
+            await this.createGameAction(this.playerName);
           },
         });
       } else {
-        await this.createGameAction();
+        await this.createGameAction(this.playerName);
       }
     },
     async reloadGame() {
       await this.refresh();
     },
     async joinGame() {
-      if (!this.game.id || !this.player.name) {
+      if (!this.game.id || !this.playerName) {
         Toast.open({
           message: 'enter player name and game id to join',
           type: 'is-danger',
@@ -198,7 +195,7 @@ export default {
         return false;
       }
       await this.getGameAction();
-      await this.addPlayerAction();
+      await this.addPlayerAction(this.playerName);
       await this.getGameAction();
     },
     async refresh() {
