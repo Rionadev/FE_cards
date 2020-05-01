@@ -95,7 +95,7 @@
     </div>
     <footer class="card-footer">
       <b-button
-        :type="getButtonColor('beforeGame')"
+        :type="getButtonColor('joinGame')"
         class="card-footer-item"
         @click="joinGame"
         >Join</b-button
@@ -107,7 +107,7 @@
         >Reload</b-button
       >
       <b-button
-        :type="getButtonColor('beforeGame')"
+        :type="getButtonColor('createGame')"
         class="card-footer-item"
         @click="createGame"
         >Create</b-button
@@ -143,11 +143,12 @@ export default {
         this.setGame(game);
         this.gameType = game.type;
       }
-      let player = JSON.parse(window.localStorage.getItem('player'));
-      if (player) {
-        this.playerName = player.name;
-      }
     }
+    let player = JSON.parse(window.localStorage.getItem('player'));
+    if (player) {
+      this.playerName = player.name;
+    }
+
     this.startAutoUpdate();
   },
   beforeDestroy() {

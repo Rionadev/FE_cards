@@ -39,8 +39,17 @@ export const mixin = {
             return 'is-success';
           }
           break;
-        case 'beforeGame':
+        case 'createGame':
           if (!this.game.id) {
+            return 'is-success';
+          }
+          break;
+        case 'joinGame':
+          if (
+            !this.player ||
+            !this.game.players ||
+            this.game['@id'] != this.player.game
+          ) {
             return 'is-success';
           }
           break;
