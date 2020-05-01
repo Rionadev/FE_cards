@@ -32,19 +32,22 @@
           </div>
         </div>
       </nav>
-      <div
-        v-for="card in player.cards"
-        :key="card.card['@id']"
-        class="level-item has-text-centered"
-      >
+      <nav class="level" v-for="n in 3" :key="n">
         <div
-          class="card-answer"
-          :class="checkCardSelected(card.card['@id'])"
-          @click="toggleCardSelect(card.card['@id'])"
+          v-for="card in player.cards.slice((n - 1) * 4, (n - 1) * 4 + 4)"
+          :key="card.card['@id']"
+          class="level-item has-text-centered"
+          :class="n"
         >
-          <img :src="getCardImage(card.card.image)" />
+          <div
+            class="card-answer"
+            :class="checkCardSelected(card.card['@id'])"
+            @click="toggleCardSelect(card.card['@id'])"
+          >
+            <img :src="getCardImage(card.card.image)" />
+          </div>
         </div>
-      </div>
+      </nav>
     </div>
     <footer class="card-footer">
       <b-button

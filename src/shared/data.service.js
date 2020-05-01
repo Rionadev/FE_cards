@@ -32,11 +32,14 @@ const getGame = async function(id) {
   return game;
 };
 
-const newGame = async function(playerName) {
-  const game = {};
+const newGame = async function(playerName, gameType) {
+  let game = {
+    type: gameType,
+  };
   if (playerName !== undefined) {
     game.name = playerName;
   }
+  console.log(game);
   const response = await axios.post(`${API}/api/games`, game);
   const newGame = parseItem(response, 201);
   return newGame;

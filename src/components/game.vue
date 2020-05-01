@@ -15,6 +15,9 @@
       </a>
     </div>
     <div class="card-content">
+      <p class="title">
+        {{ gameTitle() }}
+      </p>
       <nav class="level is-mobile" v-if="game.playersCount">
         <div class="level-item has-text-centered">
           <div>
@@ -47,6 +50,18 @@
       <section class="hero">
         <div class="hero-body">
           <div class="container">
+            <div class="field">
+              <p class="control">
+                <b-field class="field has-addons has-addons-centered">
+                  <b-radio v-model="gameType" name="name" native-value="cards">
+                    Cards
+                  </b-radio>
+                  <b-radio v-model="gameType" name="name" native-value="memes">
+                    Memes
+                  </b-radio>
+                </b-field>
+              </p>
+            </div>
             <b-field grouped>
               <b-field label="Game ID" expanded>
                 <b-field>
@@ -115,6 +130,7 @@ export default {
       timer: '',
       retry: 3,
       playerName: '',
+      gameType: '',
     };
   },
   mixins: [mixin],
@@ -125,6 +141,7 @@ export default {
       let game = JSON.parse(window.localStorage.getItem('game'));
       if (game) {
         this.setGame(game);
+        this.gameType = game.type;
       }
       let player = JSON.parse(window.localStorage.getItem('player'));
       if (player) {
@@ -158,6 +175,7 @@ export default {
       'setPlayerName',
       'setGameId',
       'setGame',
+      'setGameType',
     ]),
     async createGame() {
       if (!this.playerName) {
@@ -167,6 +185,18 @@ export default {
         });
         return false;
       }
+      if (!this.gameType) {
+        Toast.open({
+          message: 'choose game type create a game',
+          type: 'is-danger',
+        });
+        return false;
+      }
+
+      let gameInfo = {
+        playerName: this.playerName,
+        gameType: this.gameType,
+      };
 
       if (this.game.id) {
         this.$buefy.dialog.confirm({
@@ -176,11 +206,11 @@ export default {
           type: 'is-danger',
           hasIcon: true,
           onConfirm: async () => {
-            await this.createGameAction(this.playerName);
+            await this.createGameAction(gameInfo);
           },
         });
       } else {
-        await this.createGameAction(this.playerName);
+        await this.createGameAction(gameInfo);
       }
     },
     async reloadGame() {
@@ -231,6 +261,15 @@ export default {
         message: 'Failed to copy text',
         type: 'is-danger',
       });
+    },
+    gameTitle() {
+      if (this.gameType === 'cards') {
+        return 'Karty dżentelmenów';
+      } else if (this.gameType === 'memes') {
+        return 'Memy';
+      } else {
+        return 'Wybierz rodzaj gry';
+      }
     },
   },
 };

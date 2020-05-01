@@ -74,8 +74,16 @@ const actions = {
     game.id = value;
     commit(GAME_UPDATE, game);
   },
-  async createGameAction({ commit, state }, playerName) {
-    const game = await dataService.newGame(playerName);
+  setGameType({ commit, state }, value) {
+    let game = _.cloneDeep(state.game);
+    game.type = value;
+    commit(GAME_UPDATE, game);
+  },
+  async createGameAction({ commit, state }, gameInfo) {
+    const game = await dataService.newGame(
+      gameInfo.playerName,
+      gameInfo.gameType
+    );
     commit(GAME_CREATE, game);
     if (game.players.length) {
       commit(PLAYER_UPDATE, game.players[0]);
