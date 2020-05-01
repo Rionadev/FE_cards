@@ -233,6 +233,7 @@ export default {
         if (this.game.id) {
           console.log('game refresh');
           await this.getGameAction();
+          this.gameType = this.game.type;
           this.startAutoUpdate();
         }
       } catch (error) {
