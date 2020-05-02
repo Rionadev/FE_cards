@@ -79,6 +79,13 @@ const actions = {
     game.type = value;
     commit(GAME_UPDATE, game);
   },
+  async resetGameAction({ commit, state }) {
+    commit(GAME_UPDATE, {});
+    commit(PLAYER_UPDATE, {});
+    commit(ROUND_UPDATE, {});
+    commit(CARDS_SELECTED, []);
+    commit(ROUND_PLAYED, false);
+  },
   async createGameAction({ commit, state }, gameInfo) {
     const game = await dataService.newGame(
       gameInfo.playerName,

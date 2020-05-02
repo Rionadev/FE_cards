@@ -134,13 +134,16 @@ export default {
     };
   },
   mixins: [mixin],
-  created() {
+  async created() {
     if (this.$route.query.game) {
+      this.resetGameAction();
       this.gameId = this.$route.query.game;
+      window.location.href = '/';
     } else {
       let game = JSON.parse(window.localStorage.getItem('game'));
       if (game) {
         this.setGame(game);
+        game = await this.refresh();
         this.gameType = game.type;
       }
     }
@@ -170,6 +173,7 @@ export default {
   },
   methods: {
     ...mapActions([
+      'resetGameAction',
       'createGameAction',
       'addPlayerAction',
       'getGameAction',
@@ -193,7 +197,7 @@ export default {
         });
         return false;
       }
-
+      this.resetGameAction();
       let gameInfo = {
         playerName: this.playerName,
         gameType: this.gameType,
@@ -234,7 +238,6 @@ export default {
         if (this.game.id) {
           console.log('game refresh');
           await this.getGameAction();
-          this.gameType = this.game.type;
           this.startAutoUpdate();
         }
       } catch (error) {
@@ -243,6 +246,7 @@ export default {
           id: this.gameId,
         });
       }
+      return this.game;
     },
     cancelAutoUpdate() {
       console.log('cancel autoupdate game');

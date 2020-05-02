@@ -70,6 +70,8 @@
 <style lang="scss">
 .card-answer {
   padding: 3px;
+  max-width: 300px;
+  margin: auto;
 }
 </style>
 
